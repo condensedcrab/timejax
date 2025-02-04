@@ -81,10 +81,14 @@ i = 0
 N = window_size
 freq = np.fft.fftfreq(N, timestep)[: window_size // 2]
 desired_N = 4096
+p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 1)
+
 
 ft_input = np.pad(
     Y[i : i + window_size], (desired_N - N) // 2, mode="constant"
-) * np.hamming(desired_N)
+) * np.hanning(desired_N - 1)
+
+
 F = np.fft.fft(ft_input)
 
 
@@ -93,5 +97,5 @@ plt.plot(X[i : i + window_size], Y[i : i + window_size])
 
 plt.subplot(122)
 plt.plot(freq, np.abs(F[: window_size // 2]))
-plt.xlim([0, 5])
-plt.yscale("log")
+plt.xlim([0, 2])
+# plt.yscale("log")
