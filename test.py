@@ -40,14 +40,26 @@ plt.grid("both")
 
 # %% CO2 data - 0th order FFT analysis
 X = co2["timestamp"].to_numpy()
+Y = co2["ppm"].to_numpy()
+
 timestep = jnp.diff(X)[0]
 N = len(X)
+desired_N = 2**16
+
+
+ft_input = np.pad(Y,mode='constant')
 
 freq = np.fft.fftfreq(N, timestep)[: N // 2]
-F = jnp.fft.fft(X * np.hamming(N))
+F = jnp.fft.fft(input)
 
 plt.figure()
-
-plt.plot(freq[3:], np.abs(F[3 : N // 2]))
+plt.plot(freq[:], np.abs(F[ : N // 2]))
+plt.xlim([0,10])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
+
+# %% sliding window analysis
+window_size = 4
+time = co2["timestamp"]
+
+for i in range()
