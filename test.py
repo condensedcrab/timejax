@@ -63,13 +63,35 @@ plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
 
 # %% sliding window analysis
-window_size = 4
+sliding_window = 4  # years
+
+timestep = np.diff(X)[0]
 X = co2["timestamp"].to_numpy()
 Y = co2["ppm"].to_numpy()
+window_size = np.round(sliding_window / timestep).astype(int)
 
-plt.figure()
-for i in range(window_size, N - window_size):
-    plt.subplot(121)
-    plt.plot(X[i : i + window_size], Y[i : i + window_size])
-    plt.show()
-    time.sleep(1)
+# plt.figure()
+# for i in range(window_size, N - window_size):
+#     plt.subplot(121)
+#     plt.plot(X[i : i + window_size], Y[i : i + window_size])
+#     plt.show()
+#     time.sleep(1)
+i = 0
+
+N = window_size
+freq = np.fft.fftfreq(N, timestep)[: window_size // 2]
+desired_N = 4096
+
+ft_input = np.pad(
+    Y[i : i + window_size], (desired_N - N) // 2, mode="constant"
+) * np.hamming(desired_N)
+F = np.fft.fft(ft_input)
+
+
+plt.subplot(121)
+plt.plot(X[i : i + window_size], Y[i : i + window_size])
+
+plt.subplot(122)
+plt.plot(freq, np.abs(F[: window_size // 2]))
+plt.xlim([0, 5])
+plt.yscale("log")
