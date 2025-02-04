@@ -44,12 +44,10 @@ timestep = jnp.diff(X)[0]
 N = len(X)
 
 freq = np.fft.fftfreq(N, timestep)[: N // 2]
-F = jnp.fft.fft(X)
-
+F = jnp.fft.fft(X * np.hamming(N))
 
 plt.figure()
 
-plt.plot(freq, np.abs(F[: N // 2]))
-# plt.yscale("log")
-# plt.xlim([120,150])
-# plt.ylim([0,10])
+plt.plot(freq[3:], np.abs(F[3 : N // 2]))
+plt.yscale("log")
+plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
