@@ -37,6 +37,7 @@ plt.subplot(122)
 plt.plot(ch4["timestamp"], ch4["ppm"], color="dodgerblue")
 plt.xlabel("Time (yr)"), plt.ylabel("Avg. CH$_4$ Concentration (ppb)")
 plt.grid("both")
+plt.savefig("figures/co2_ch4_ppm.png")
 
 # %% CO2 data - 0th order FFT analysis
 X = co2["timestamp"].to_numpy()
@@ -46,8 +47,8 @@ timestep = jnp.diff(X)[0]
 N = len(X)
 desired_N = 2**15
 
-ft_input = np.pad(Y,(desired_N-N)//2, mode='constant')*np.hamming(desired_N)
-ft_input = Y*np.hamming(N)
+ft_input = np.pad(Y, (desired_N - N) // 2, mode="constant") * np.hamming(desired_N)
+ft_input = Y * np.hamming(N)
 
 
 freq = np.fft.fftfreq(N, timestep)[: N // 2]
@@ -55,15 +56,20 @@ F = jnp.fft.fft(ft_input)
 
 
 plt.figure()
-plt.plot(freq[:], np.abs(F[ : N // 2]))
-plt.xlim([0,5])
+plt.plot(freq[:], np.abs(F[: N // 2]))
+plt.xlim([0, 5])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
 
-
 # %% sliding window analysis
 window_size = 4
-time = co2["timestamp"]
+X = co2["timestamp"].to_numpy()
+Y = co2["ppm"].to_numpy()
 
-for i in range()
+plt.figure()
+for i in range(window_size, N - window_size):
+    plt.subplot(121)
+    plt.plot(X[i : i + window_size], Y[i : i + window_size])
+    plt.show()
+    time.sleep(1)
