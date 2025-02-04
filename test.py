@@ -8,7 +8,7 @@ import os
 import matplotlib.pyplot as plt
 import scipy
 import numpy as np
-
+import seaborn as sns
 import time
 import pandas as pd
 import jax.numpy as jnp
