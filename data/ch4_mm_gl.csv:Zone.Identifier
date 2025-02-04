@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://gml.noaa.gov/ccgg/trends_ch4/
+HostUrl=https://gml.noaa.gov/webdata/ccgg/trends/ch4/ch4_mm_gl.csv
