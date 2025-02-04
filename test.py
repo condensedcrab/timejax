@@ -44,19 +44,23 @@ Y = co2["ppm"].to_numpy()
 
 timestep = jnp.diff(X)[0]
 N = len(X)
-desired_N = 2**16
+desired_N = 2**15
 
+ft_input = np.pad(Y,(desired_N-N)//2, mode='constant')*np.hamming(desired_N)
+ft_input = Y*np.hamming(N)
 
-ft_input = np.pad(Y,mode='constant')
 
 freq = np.fft.fftfreq(N, timestep)[: N // 2]
-F = jnp.fft.fft(input)
+F = jnp.fft.fft(ft_input)
+
 
 plt.figure()
 plt.plot(freq[:], np.abs(F[ : N // 2]))
-plt.xlim([0,10])
+plt.xlim([0,5])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
+
+
 
 # %% sliding window analysis
 window_size = 4
