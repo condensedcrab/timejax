@@ -48,7 +48,7 @@ N = len(X)
 desired_N = 2**15
 
 ft_input = np.pad(Y, (desired_N - N) // 2, mode="constant") * np.hamming(desired_N)
-ft_input = Y * np.hamming(N)
+ft_input = Y
 
 
 freq = np.fft.fftfreq(N, timestep)[: N // 2]
@@ -63,39 +63,38 @@ plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
 
 # %% sliding window analysis
-sliding_window = 4  # years
+sliding_window = 6  # years
 
 timestep = np.diff(X)[0]
 X = co2["timestamp"].to_numpy()
 Y = co2["ppm"].to_numpy()
 window_size = np.round(sliding_window / timestep).astype(int)
 
-# plt.figure()
-# for i in range(window_size, N - window_size):
-#     plt.subplot(121)
-#     plt.plot(X[i : i + window_size], Y[i : i + window_size])
-#     plt.show()
-#     time.sleep(1)
-i = 0
+
+i = 500
 
 N = window_size
 freq = np.fft.fftfreq(N, timestep)[: window_size // 2]
 desired_N = 4096
 p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 1)
 
-
-ft_input = np.pad(
-    Y[i : i + window_size], (desired_N - N) // 2, mode="constant"
-) * np.hanning(desired_N - 1)
+ft_input = Y[i : i + window_size] - np.polyval(p, X[i : i + window_size])
 
 
 F = np.fft.fft(ft_input)
 
 
 plt.subplot(121)
-plt.plot(X[i : i + window_size], Y[i : i + window_size])
+# plt.plot(X[i : i + window_size], Y[i : i + window_size])
+plt.plot(X[i : i + window_size], ft_input, color="navy")
+plt.ylabel("Background Subtracted (ppm)")
+plt.xlabel("Time (yr)")
 
-plt.subplot(122)
-plt.plot(freq, np.abs(F[: window_size // 2]))
-plt.xlim([0, 2])
+ax = plt.subplot(122)
+plt.plot(freq, np.abs(F[: window_size // 2]), color="navy")
+plt.xlim([0, 4])
+plt.ylabel("FT Amp. (arb. units)")
+plt.xlabel("Frequency (yr$^{-1}$)")
+ax.yaxis.set_label_position("right")
+ax.yaxis.tick_right()
 # plt.yscale("log")
