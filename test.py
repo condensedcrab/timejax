@@ -63,13 +63,12 @@ plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
 
 # %% sliding window analysis
-sliding_window = 35  # years
+sliding_window = 30  # years
 
 timestep = np.diff(X)[0]
 X = co2["timestamp"].to_numpy()
 Y = co2["ppm"].to_numpy()
 window_size = np.round(sliding_window / timestep).astype(int)
-
 
 i = 500
 
@@ -77,16 +76,11 @@ N = window_size
 freq = np.fft.fftfreq(N, timestep)[: window_size // 2]
 desired_N = 4096
 p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 1)
-
 ft_input = Y[i : i + window_size] - np.polyval(p, X[i : i + window_size])
-
-
 F = np.fft.fft(ft_input)
 
-
 plt.subplot(121)
-# plt.plot(X[i : i + window_size], Y[i : i + window_size])
-plt.plot(X[i : i + window_size], ft_input, color="navy")
+plt.plot(X[i : i + window_size], ft_input, color="maroon")
 plt.ylabel("Background Subtracted (ppm)")
 plt.xlabel("Time (yr)")
 
@@ -94,7 +88,7 @@ ax = plt.subplot(122)
 plt.plot(
     freq,
     np.abs(F[: window_size // 2]) / np.max(np.abs(F[: window_size // 2])),
-    color="navy",
+    color="maroon",
 )
 plt.xlim([0, 4])
 plt.ylabel("FT Amp. (normalized)")
@@ -102,3 +96,4 @@ plt.xlabel("Frequency (yr$^{-1}$)")
 ax.yaxis.set_label_position("right")
 ax.yaxis.tick_right()
 # plt.yscale("log")
+plt.savefig("figures/co2_principle_FT.png")
