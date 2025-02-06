@@ -63,7 +63,7 @@ plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
 
 # %% sliding window analysis
-sliding_window = 6  # years
+sliding_window = 35  # years
 
 timestep = np.diff(X)[0]
 X = co2["timestamp"].to_numpy()
@@ -91,9 +91,13 @@ plt.ylabel("Background Subtracted (ppm)")
 plt.xlabel("Time (yr)")
 
 ax = plt.subplot(122)
-plt.plot(freq, np.abs(F[: window_size // 2]), color="navy")
+plt.plot(
+    freq,
+    np.abs(F[: window_size // 2]) / np.max(np.abs(F[: window_size // 2])),
+    color="navy",
+)
 plt.xlim([0, 4])
-plt.ylabel("FT Amp. (arb. units)")
+plt.ylabel("FT Amp. (normalized)")
 plt.xlabel("Frequency (yr$^{-1}$)")
 ax.yaxis.set_label_position("right")
 ax.yaxis.tick_right()
