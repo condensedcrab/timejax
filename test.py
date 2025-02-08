@@ -14,7 +14,7 @@ import pandas as pd
 import jax.numpy as jnp
 
 # %% load data and plot data
-
+data_dict = {}
 co2 = pd.read_csv(
     "data/co2_daily_mlo.csv",
     skiprows=32,
@@ -39,6 +39,7 @@ plt.xlabel("Time (yr)"), plt.ylabel("Avg. CH$_4$ Concentration (ppb)")
 plt.grid("both")
 plt.savefig("figures/co2_ch4_ppm.png")
 
+
 # %% CO2 data - 0th order FFT analysis
 X = co2["timestamp"].to_numpy()
 Y = co2["ppm"].to_numpy()
@@ -58,11 +59,14 @@ F = jnp.fft.fft(ft_input)
 plt.figure()
 plt.plot(freq[:], np.abs(F[: N // 2]))
 plt.xlim([0, 5])
+plt.ylim([10**2, 10**6])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 
+data_dict["co2"] = [X, Y]
+plt.savefig("figures/co2_FT_nosubtract.png")
 
-# %% sliding window analysis
+# %% doing a linear fit subtraction
 sliding_window = 30  # years
 
 timestep = np.diff(X)[0]
@@ -81,7 +85,7 @@ F = np.fft.fft(ft_input)
 
 plt.subplot(121)
 plt.plot(X[i : i + window_size], ft_input, color="maroon")
-plt.ylabel("Background Subtracted (ppm)")
+plt.ylabel("Linear Fit Subtracted (ppm)")
 plt.xlabel("Time (yr)")
 
 ax = plt.subplot(122)
@@ -97,3 +101,43 @@ ax.yaxis.set_label_position("right")
 ax.yaxis.tick_right()
 # plt.yscale("log")
 plt.savefig("figures/co2_principle_FT.png")
+
+
+# %% methane polynomial fit
+
+sliding_window = 50  # years
+
+timestep = np.diff(X)[0]
+X = ch4["timestamp"].to_numpy()
+Y = ch4["ppm"].to_numpy()
+window_size = np.round(sliding_window / timestep).astype(int)
+
+i = 0
+
+N = window_size
+freq = np.fft.fftfreq(N, timestep)[: window_size // 2]
+desired_N = 4096
+p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 4)
+ft_input = Y[i : i + window_size] - np.polyval(p, X[i : i + window_size])
+F = np.fft.fft(ft_input)
+
+plt.subplot(121)
+plt.plot(X[i : i + window_size], ft_input, color="dodgerblue")
+plt.ylabel("Polynomial Subtracted (ppm)")
+plt.xlabel("Time (yr)")
+
+ax = plt.subplot(122)
+plt.plot(
+    freq,
+    np.abs(F[: window_size // 2]) / np.max(np.abs(F[: window_size // 2])),
+    color="dodgerblue",
+)
+plt.xlim([0, 4])
+plt.ylabel("FT Amp. (normalized)")
+plt.xlabel("Frequency (yr$^{-1}$)")
+ax.yaxis.set_label_position("right")
+ax.yaxis.tick_right()
+# plt.yscale("log")
+plt.savefig("figures/ch4_principle_FT.png")
+
+# %% other time forecasting solutions
