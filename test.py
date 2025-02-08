@@ -141,6 +141,17 @@ ax.yaxis.tick_right()
 plt.savefig("figures/ch4_principle_FT.png")
 
 # %% ARIMA forecasting
-import statsmodels.api as sm
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.graphics.tsaplots import plot_predict
 
-mod = sm.tsa.arima.ARIMA(endog, order=(1, 0, 0))
+timestep = np.diff(X)[0]
+X = ch4["timestamp"].to_numpy()
+Y = ch4["ppm"].to_numpy()
+
+arma_mod = ARIMA(Y, order=(2, 0, 2), trend="n")
+arma_res = arma_mod.fit()
+
+print(arma_res.summary())
+fig, ax = plt.subplots(figsize=(10, 8))
+fig = plot_predict(arma_res)
+legend = ax.legend(loc="upper left")
