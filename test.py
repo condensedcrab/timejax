@@ -140,4 +140,7 @@ ax.yaxis.tick_right()
 # plt.yscale("log")
 plt.savefig("figures/ch4_principle_FT.png")
 
-# %% other time forecasting solutions
+# %% ARIMA forecasting
+import statsmodels.api as sm
+
+mod = sm.tsa.arima.ARIMA(endog, order=(1, 0, 0))
