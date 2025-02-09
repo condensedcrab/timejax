@@ -56,13 +56,19 @@ freq = np.fft.fftfreq(N, timestep)[: N // 2]
 F = jnp.fft.fft(ft_input)
 
 
-plt.figure()
-plt.plot(freq[:], np.abs(F[: N // 2]))
+plt.figure(figsize=(12, 4))
+plt.subplot(121)
+plt.plot(co2["timestamp"], co2["ppm"], color="maroon")
+plt.xlabel("Time (yr)"), plt.ylabel("CO$_2$ Concentration (ppm)")
+plt.grid("both")
+
+plt.subplot(122)
+plt.plot(freq[:], np.abs(F[: N // 2]), color="maroon")
 plt.xlim([0, 5])
 plt.ylim([10**2, 10**6])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
-
+plt.grid("both")
 data_dict["co2"] = [X, Y]
 plt.savefig("figures/co2_FT_nosubtract.png")
 
@@ -102,7 +108,6 @@ ax.yaxis.tick_right()
 # plt.yscale("log")
 plt.savefig("figures/co2_principle_FT.png")
 
-
 # %% methane polynomial fit
 
 sliding_window = 50  # years
@@ -131,6 +136,12 @@ plt.plot(
     freq,
     np.abs(F[: window_size // 2]) / np.max(np.abs(F[: window_size // 2])),
     color="dodgerblue",
+)
+
+print(
+    freq[
+        np.where(np.abs(F[: window_size // 2]) == np.max(np.abs(F[: window_size // 2])))
+    ]
 )
 plt.xlim([0, 4])
 plt.ylabel("FT Amp. (normalized)")
