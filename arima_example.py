@@ -67,16 +67,16 @@ def loss(params: jnp.array, x: jnp.array):
 
 
 vpredict = jax.vmap(predict, (None, 0))
-loss_grad = jax.grad(loss)
+loss_grad_func = jax.grad(loss, allow_int=True)
 
-err = 1e-2
+err = 1e-3
 
 p = jnp.array([1, 1])
 for i in range(10):
-    a = loss(p, Y)
-    L = loss_grad(p, Y)
+    # a = loss(p, Y)
+    L = loss_grad_func(p, Y)
     old_p = p
     p = jnp.array([p[0] - err * L.w, p[1] - err * L.b])
 
-    if jnp.abs(old - p) < 1e-3:
+    if jnp.abs(old_p - p) < 1e-3:
         break
