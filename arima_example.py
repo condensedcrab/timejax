@@ -51,6 +51,11 @@ ch4["ppm"] = ch4["ppm"] / 1000
 X = jnp.array(co2["timestamp"])
 Y = jnp.array(co2["ppm"]).astype(float)
 
+p = np.polyfit(X, Y, 4)
+print(p)
+data = []
+data = Y - np.polyval(p, X)
+
 
 # %% write out predict (use Nx2 format)
 @jax.jit
