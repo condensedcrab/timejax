@@ -49,7 +49,7 @@ ch4 = pd.read_csv(
 )
 ch4["ppm"] = ch4["ppm"] / 1000
 X = jnp.array(co2["timestamp"])
-Y = jnp.array(co2["ppm"])
+Y = jnp.array(co2["ppm"]).astype(float)
 
 
 # %% write out predict (use Nx2 format)
@@ -57,3 +57,26 @@ Y = jnp.array(co2["ppm"])
 def predict(params: jnp.array, data: jnp.array):
     w, b = params
     return w * data + b
+
+
+# mean-square loss function
+@jax.jit
+def loss(params: jnp.array, x: jnp.array):
+    output = jnp.square(x[1:] - vpredict(params, x)[:-1].mean())
+    return output
+
+
+vpredict = jax.vmap(predict, (None, 0))
+loss_grad = jax.grad(loss)
+
+err = 1e-2
+
+p = jnp.array([1, 1])
+for i in range(10):
+    a = loss(p, Y)
+    L = loss_grad(p, Y)
+    old_p = p
+    p = jnp.array([p[0] - err * L.w, p[1] - err * L.b])
+
+    if jnp.abs(old - p) < 1e-3:
+        break
