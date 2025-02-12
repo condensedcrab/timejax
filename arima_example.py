@@ -8,6 +8,7 @@ import statsmodels.api as sm
 from scipy import stats
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.graphics.api import qqplot
+from statsmodels.tsa.ar_model import AutoReg
 
 import jax
 import jax.numpy as jnp
@@ -56,32 +57,13 @@ print(p)
 data = []
 data = Y - np.polyval(p, X)
 
+import statsmodels.api as sm
 
-# %% write out predict (use Nx2 format)
-@jax.jit
-def predict(params: jnp.array, data: jnp.array):
-    w, b = params
-    return w * data + b
+fig = plt.figure(figsize=(6, 3))
+ax = plt.gca()
+sm.graphics.tsa.plot_pacf(data, ax=ax, lags=50)
 
-
-# mean-square loss function
-@jax.jit
-def loss(params: jnp.array, x: jnp.array):
-    output = jnp.square(x[1:] - vpredict(params, x)[:-1].mean())
-    return output
-
-
-vpredict = jax.vmap(predict, (None, 0))
-loss_grad_func = jax.grad(loss, allow_int=True)
-
-err = 1e-3
-
-p = jnp.array([1, 1])
-for i in range(10):
-    # a = loss(p, Y)
-    L = loss_grad_func(p, Y)
-    old_p = p
-    p = jnp.array([p[0] - err * L.w, p[1] - err * L.b])
-
-    if jnp.abs(old_p - p) < 1e-3:
-        break
+plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
+plt.grid("on")
+plt.show()
+plt.savefig("CO2_autocorrelation.png")
