@@ -13,7 +13,6 @@ from statsmodels.tsa.ar_model import AutoReg
 import jax
 import jax.numpy as jnp
 
-print(sm.datasets.sunspots.NOTE)
 
 # %%
 dta = sm.datasets.sunspots.load_pandas().data
@@ -67,3 +66,54 @@ plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
 plt.grid("on")
 plt.show()
 plt.savefig("CO2_autocorrelation.png")
+
+# %% do arima
+data = np.array(co2["ppm"]).astype(float)
+res = sm.tsa.arima.ARIMA(data[0 : len(data) // 2], order=(1, 1, 1)).fit()
+print(res.summary())
+
+plt.plot(data, label="Original")
+plt.plot(res.fittedvalues[1:], label="Fitted", color="red")
+plt.title("ARIMA Model Fit")
+plt.xlabel("Time")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
+
+predictions = res.get_forecast(steps=500)
+
+# Get the mean predicted values
+mean_predictions = predictions.predicted_mean
+
+# Get confidence intervals
+conf_int = predictions.conf_int()
+
+predict = res.get_prediction()
+predict.predicted_mean.loc["1980-07-01":].plot(
+    ax=ax, style="r--", label="One-step-ahead forecast"
+)
+
+res.plot_diagnostics(figsize=(12, 8))
+# plt.show()
+# # Plot confidence intervals
+# plt.fill_between(
+#     mean_predictions.index,
+#     conf_int["lower y"],
+#     conf_int["upper y"],
+#     color="green",
+#     alpha=0.2,
+# )
+
+plt.title("ARIMA Model Fit and Predictions")
+plt.xlabel("Time")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
+
+# %%
+fig, ax = plt.subplots()
+plt.plot(X, Y)
+
+
+model_output = res.predict()
+plt.plot(X[1:], model_output[1:])
