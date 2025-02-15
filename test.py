@@ -27,16 +27,18 @@ ch4 = pd.read_csv(
 )
 ch4["ppm"] = ch4["ppm"] / 1000
 
-plt.figure(figsize=(12, 4))
+plt.figure(figsize=(8, 4))
 plt.subplot(121)
 plt.plot(co2["timestamp"], co2["ppm"], color="maroon")
 plt.xlabel("Time (yr)"), plt.ylabel("CO$_2$ Concentration (ppm)")
 plt.grid("both")
 
-plt.subplot(122)
+ax = plt.subplot(122)
 plt.plot(ch4["timestamp"], ch4["ppm"], color="dodgerblue")
 plt.xlabel("Time (yr)"), plt.ylabel("Avg. CH$_4$ Concentration (ppb)")
 plt.grid("both")
+ax.yaxis.set_label_position("right")
+ax.yaxis.tick_right()
 plt.savefig("figures/co2_ch4_ppm.png")
 
 
@@ -56,19 +58,21 @@ freq = np.fft.fftfreq(N, timestep)[: N // 2]
 F = jnp.fft.fft(ft_input)
 
 
-plt.figure(figsize=(12, 4))
+plt.figure(figsize=(6, 4))
 plt.subplot(121)
 plt.plot(co2["timestamp"], co2["ppm"], color="maroon")
 plt.xlabel("Time (yr)"), plt.ylabel("CO$_2$ Concentration (ppm)")
 plt.grid("both")
 
-plt.subplot(122)
+ax = plt.subplot(122)
 plt.plot(freq[:], np.abs(F[: N // 2]), color="maroon")
 plt.xlim([0, 5])
 plt.ylim([10**2, 10**6])
 plt.yscale("log")
 plt.xlabel("Frequency (yr$^{-1}$)"), plt.ylabel("FT Magnitude (arb. units)")
 plt.grid("both")
+ax.yaxis.set_label_position("right")
+ax.yaxis.tick_right()
 data_dict["co2"] = [X, Y]
 plt.savefig("figures/co2_FT_nosubtract.png")
 
@@ -89,6 +93,7 @@ p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 1)
 ft_input = Y[i : i + window_size] - np.polyval(p, X[i : i + window_size])
 F = np.fft.fft(ft_input)
 
+plt.figure(figsize=(6, 4))
 plt.subplot(121)
 plt.plot(X[i : i + window_size], ft_input, color="maroon")
 plt.ylabel("Linear Fit Subtracted (ppm)")
@@ -125,7 +130,7 @@ desired_N = 4096
 p = np.polyfit(X[i : i + window_size], Y[i : i + window_size], 4)
 ft_input = Y[i : i + window_size] - np.polyval(p, X[i : i + window_size])
 F = np.fft.fft(ft_input)
-
+plt.figure(figsize=(6, 4))
 plt.subplot(121)
 plt.plot(X[i : i + window_size], ft_input, color="dodgerblue")
 plt.ylabel("Polynomial Subtracted (ppm)")

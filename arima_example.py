@@ -55,12 +55,10 @@ p = np.polyfit(X, Y, 4)
 print(p)
 data = []
 data = Y - np.polyval(p, X)
+data = co2["ppm"].astype(float)
 
 import statsmodels.api as sm
 
-fig = plt.figure(figsize=(6, 3))
-ax = plt.gca()
-sm.graphics.tsa.plot_pacf(data, ax=ax, lags=50)
 
 fig = plt.figure(figsize=(8, 10))
 ax1 = fig.add_subplot(211)
@@ -72,7 +70,7 @@ fig = sm.graphics.tsa.plot_pacf(data, lags=40, ax=ax2)
 plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
 plt.grid("on")
 plt.show()
-plt.savefig("CO2_autocorrelation_without_diff.png")
+plt.savefig("figures/CO2_autocorrelation_without_diff.png")
 
 fig = plt.figure(figsize=(8, 10))
 ax1 = fig.add_subplot(211)
@@ -83,8 +81,9 @@ ax2 = fig.add_subplot(212)
 fig = sm.graphics.tsa.plot_pacf(np.diff(data), lags=40, ax=ax2)
 plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
 plt.grid("on")
+
+plt.savefig("figures/CO2_autocorrelation_with_diff.png")
 plt.show()
-plt.savefig("CO2_autocorrelation_with_diff.png")
 
 # %% do arima
 data = np.array(co2["ppm"]).astype(float)
