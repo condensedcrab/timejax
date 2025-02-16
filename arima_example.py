@@ -13,27 +13,6 @@ from statsmodels.tsa.ar_model import AutoReg
 import jax
 import jax.numpy as jnp
 
-
-# %%
-dta = sm.datasets.sunspots.load_pandas().data
-dta.index = pd.Index(sm.tsa.datetools.dates_from_range("1700", "2008"))
-dta.index.freq = dta.index.inferred_freq
-del dta["YEAR"]
-dta.plot(figsize=(12, 8))
-
-fig = plt.figure(figsize=(12, 8))
-ax1 = fig.add_subplot(211)
-fig = sm.graphics.tsa.plot_acf(dta.values.squeeze(), lags=40, ax=ax1)
-ax2 = fig.add_subplot(212)
-fig = sm.graphics.tsa.plot_pacf(dta, lags=40, ax=ax2)
-
-# %%
-# arma_mod20 = ARIMA(dta, order=(2, 0, 0)).fit()
-# print(arma_mod20.params)
-
-# arma_mod30 = ARIMA(dta, order=(3, 0, 0)).fit()
-# print(arma_mod30.params)
-
 # %% CO2 example
 data_dict = {}
 co2 = pd.read_csv(
@@ -60,29 +39,30 @@ data = co2["ppm"].astype(float)
 import statsmodels.api as sm
 
 
-fig = plt.figure(figsize=(8, 10))
-ax1 = fig.add_subplot(211)
+fig = plt.figure(figsize=(12, 12))
+ax1 = fig.add_subplot(221)
 fig = sm.graphics.tsa.plot_acf(data, lags=40, ax=ax1)
-plt.xlabel("Timestep"), plt.ylabel("Autocorrelation")
+plt.xlabel("Lags"), plt.ylabel("Autocorrelation")
+plt.title("Autocorrelation (No differencing)")
+
 plt.grid("on")
-ax2 = fig.add_subplot(212)
+ax2 = fig.add_subplot(222)
 fig = sm.graphics.tsa.plot_pacf(data, lags=40, ax=ax2)
 plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
 plt.grid("on")
-plt.show()
-plt.savefig("figures/CO2_autocorrelation_without_diff.png")
 
-fig = plt.figure(figsize=(8, 10))
-ax1 = fig.add_subplot(211)
+ax1 = fig.add_subplot(223)
 fig = sm.graphics.tsa.plot_acf(np.diff(data), lags=40, ax=ax1)
-plt.xlabel("Timestep"), plt.ylabel("Autocorrelation")
+plt.xlabel("Lags"), plt.ylabel("Autocorrelation")
+plt.title("Autocorrelation (Diff.)")
 plt.grid("on")
-ax2 = fig.add_subplot(212)
+ax2 = fig.add_subplot(224)
 fig = sm.graphics.tsa.plot_pacf(np.diff(data), lags=40, ax=ax2)
 plt.xlabel("Lags"), plt.ylabel("Autocorrelation Coefficient")
 plt.grid("on")
+plt.title("Partial Autocorrelation (Diff.)")
 
-plt.savefig("figures/CO2_autocorrelation_with_diff.png")
+plt.savefig("figures/CO2_autocorrelation.png")
 plt.show()
 
 # %% do arima
@@ -93,7 +73,7 @@ print(res.summary())
 plt.plot(data, label="Original")
 plt.plot(res.fittedvalues[1:], label="Fitted", color="red")
 plt.title("ARIMA Model Fit")
-plt.xlabel("Time")
+# plt.xlabel("Time")
 plt.ylabel("Value")
 plt.legend()
 plt.show()
@@ -107,9 +87,7 @@ mean_predictions = predictions.predicted_mean
 conf_int = predictions.conf_int()
 
 predict = res.get_prediction()
-predict.predicted_mean.loc["1980-07-01":].plot(
-    ax=ax, style="r--", label="One-step-ahead forecast"
-)
+predict.predicted_mean.plot(ax=ax, style="r--", label="One-step-ahead forecast")
 
 res.plot_diagnostics(figsize=(12, 8))
 # plt.show()
@@ -129,9 +107,3 @@ plt.legend()
 plt.show()
 
 # %%
-fig, ax = plt.subplots()
-plt.plot(X, Y)
-
-
-model_output = res.predict()
-plt.plot(X[1:], model_output[1:])
