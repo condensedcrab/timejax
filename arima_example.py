@@ -66,44 +66,32 @@ plt.savefig("figures/CO2_autocorrelation.png")
 plt.show()
 
 # %% do arima
-data = np.array(co2["ppm"]).astype(float)
-res = sm.tsa.arima.ARIMA(data[0 : len(data) // 2], order=(1, 1, 1)).fit()
+
+res = sm.tsa.arima.ARIMA(data[0 : len(data)], order=(1, 1, 1)).fit()
 print(res.summary())
 
-plt.plot(data, label="Original")
-plt.plot(res.fittedvalues[1:], label="Fitted", color="red")
-plt.title("ARIMA Model Fit")
-# plt.xlabel("Time")
-plt.ylabel("Value")
-plt.legend()
+fig = plt.figure(figsize=(12, 4))
+ax = plt.subplot(121)
+plt.plot(X[1:], res.resid[1:])
+plt.xlabel("Time"), plt.ylabel("Model Residual (ppm)")
+plt.grid("on")
+
+ax = plt.subplot(122)
+plt.hist(res.resid[1:], bins=np.linspace(-4, 4, 25))
+plt.xlabel("Residual (ppm)"), plt.ylabel("Counts")
+plt.grid("on")
+
+plt.savefig("figures/ARIMA_111_CO2.png")
 plt.show()
 
-predictions = res.get_forecast(steps=500)
 
-# Get the mean predicted values
-mean_predictions = predictions.predicted_mean
+# %% SARIMA
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-# Get confidence intervals
-conf_int = predictions.conf_int()
+data = co2[["timestamp", "ppm"]]
 
-predict = res.get_prediction()
-predict.predicted_mean.plot(ax=ax, style="r--", label="One-step-ahead forecast")
 
-res.plot_diagnostics(figsize=(12, 8))
-# plt.show()
-# # Plot confidence intervals
-# plt.fill_between(
-#     mean_predictions.index,
-#     conf_int["lower y"],
-#     conf_int["upper y"],
-#     color="green",
-#     alpha=0.2,
-# )
-
-plt.title("ARIMA Model Fit and Predictions")
-plt.xlabel("Time")
-plt.ylabel("Value")
-plt.legend()
-plt.show()
-
+result = seasonal_decompose(data, model="additive")
+fig = result.plot()
 # %%
