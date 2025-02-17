@@ -88,10 +88,25 @@ plt.show()
 # %% SARIMA
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+import datetime as datetime
 
-data = co2[["timestamp", "ppm"]]
+import pandas as pd
 
+df = co2
 
-result = seasonal_decompose(data, model="additive")
+# create new date-string to feed into Pandas datetime index
+df["date_str"] = (
+    df["year"].astype(str) + "-" + df["month"].astype(str) + "-" + df["day"].astype(str)
+)
+df["date"] = pd.to_datetime(df["date_str"])  # Handles various date formats
+df = df.set_index("date")
+
+data = df[["ppm"]]
+print(data.head)
+
+pd.infer_freq(data)
+
+result = seasonal_decompose(data[:5000], model="additive", period=365)
 fig = result.plot()
+plt.savefig("CO2_seasonal_decomp.png")
 # %%
