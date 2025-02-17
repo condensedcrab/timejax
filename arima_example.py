@@ -102,9 +102,14 @@ df["date"] = pd.to_datetime(df["date_str"])  # Handles various date formats
 df = df.set_index("date")
 
 data = df[["ppm"]]
-print(data.head)
+# print(data.head)
 
-result = seasonal_decompose(data[:5000], model="additive", period=365)
+result = seasonal_decompose(data[10000:12000], model="additive", period=365)
 fig = result.plot()
 plt.savefig("figures/CO2_seasonal_decomp.png")
-# %%
+# %% fit the data with SARIMA
+model = SARIMAX(data[10000:12000], order=(1, 1, 1), seasonal_order=(1, 0, 1, 365)).fit()
+print(model.summary())
+
+
+# %% plot SARIMA predictions
