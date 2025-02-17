@@ -104,9 +104,7 @@ df = df.set_index("date")
 data = df[["ppm"]]
 print(data.head)
 
-pd.infer_freq(data)
-
 result = seasonal_decompose(data[:5000], model="additive", period=365)
 fig = result.plot()
-plt.savefig("CO2_seasonal_decomp.png")
+plt.savefig("figures/CO2_seasonal_decomp.png")
 # %%
